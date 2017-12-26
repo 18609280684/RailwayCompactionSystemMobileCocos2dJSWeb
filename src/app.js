@@ -6,10 +6,10 @@ var v = 20;
 var  p = 0;
 var rollerCar;
 //当前屏幕绘制矩形的长和宽
-var widthX = 5;
-var  heightY = 5;
+var widthX = 10;
+var  heightY = 10;
 //当前屏幕绘制矩形的数量
-var NumberOfSquares = 75;
+var NumberOfSquares = 50;
 //当前路基星系
 var BasicMileage = 10;
 
@@ -22,13 +22,13 @@ var pointsArray = new Array();
 var gameState = '1';
 var MySelf = '';
 
-var HelloWorldLayer = cc.Layer.extend({
+var HelloWorldLayer = cc.LayerColor.extend({
     sprite:null,
 
     ctor:function () {
         //////////////////////////////
         // 1. super init first
-        this._super();
+        this._super(cc.color(255, 255, 255, 255));
 
         for (var i = 0; i < 100000; i++) {
             myarr[i] = new Array();
@@ -80,7 +80,7 @@ var HelloWorldLayer = cc.Layer.extend({
         rollerCar = new cc.Sprite("res/RollerCar3.png");
         rollerCar.x = this.width/2;
         rollerCar.y = this.height/2;
-        rollerCar.setScale(0.08,0.08);
+        rollerCar.setScale(0.1,0.1);
         this.addChild(rollerCar,1);
 //里程
         var label = new cc.LabelTTF(
@@ -91,6 +91,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label.setPosition(50,this.height - 20);
+        label.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label,1,10);
 
         var label1 = new cc.LabelTTF(
@@ -101,6 +102,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label1.setPosition(50,this.height/2 + (this.height - 20 - this.height/2)/2);
+        label1.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label1,1,11);
 
         var label2 = new cc.LabelTTF(
@@ -111,6 +113,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label2.setPosition(50,this.height/2);
+        label2.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label2,1,12);
 
         var label3 = new cc.LabelTTF(
@@ -121,6 +124,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label3.setPosition(50,(this.height/2-20)/2 + 20);
+        label3.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label3,1,13);
 
         var label4 = new cc.LabelTTF(
@@ -131,6 +135,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label4.setPosition(50,20);
+        label4.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label4,1,14);
 
         //偏移
@@ -142,6 +147,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label20.setPosition(50,50);
+        label20.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label20,1,20);
 
         var label21 = new cc.LabelTTF(
@@ -152,6 +158,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label21.setPosition(50 + (this.width - 100)/5,50);
+        label21.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label21,1,21);
 
         var label22 = new cc.LabelTTF(
@@ -162,6 +169,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label22.setPosition(this.width/2,50);
+        label22.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label22,1,22);
 
         var label23 = new cc.LabelTTF(
@@ -172,6 +180,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label23.setPosition(this.width - 50 - (this.width - 100)/5,50);
+        label23.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label23,1,23);
 
         var label24 = new cc.LabelTTF(
@@ -182,6 +191,7 @@ var HelloWorldLayer = cc.Layer.extend({
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         label24.setPosition(this.width - 50,50);
+        label24.setFontFillColor(cc.color(0,0,0,255));
         this.addChild(label24,1,24);
 
         //drawNode.drawRect(cc.p(10*widthX, 10*heightY),cc.p(10*widthX + widthX,10*heightY + heightY),cc.color(50,205,50,255),1,cc.color(254,206,34,255));
@@ -220,8 +230,8 @@ var HelloWorldLayer = cc.Layer.extend({
         ServiceApi.request("Cache.get", {
                "key": "grids"
              }, function($seq, $result, $info, $value) {
-            //console.log("new_gridsnew_gridsnew_gridsnew_grids");
-            //console.log($value);
+            console.log("new_gridsnew_gridsnew_gridsnew_grids");
+            console.log($value);
 
                 if($value!= null)
                 {
@@ -251,7 +261,7 @@ var HelloWorldLayer = cc.Layer.extend({
                     }
 
                     //根据角度旋转小车角度
-                    rollerCar.runAction(cc.rotateTo(0.1,$value.info.drct));
+                    rollerCar.runAction(cc.rotateTo(0.1,$value.info.car_drct));
                     //根据center移动地图
                     drawNode.runAction(cc.moveTo(0.1,cc.p(rollerCar.x - $value.center.x*widthX,rollerCar.y - $value.center.y*heightY)));
                     //根据center调整里程值
@@ -266,7 +276,7 @@ var HelloWorldLayer = cc.Layer.extend({
                     MySelf.getChildByTag(22).setString(Math.ceil($value.center.y * 0.3));
                     MySelf.getChildByTag(23).setString(Math.ceil($value.center.y * 0.3 - MySelf.width/heightY*0.3/5));
                     MySelf.getChildByTag(24).setString(Math.ceil($value.center.y * 0.3 - MySelf.width/heightY*0.3/5*2));
-                    console.log("gameState:" + gameState);
+                    //console.log("gameState:" + gameState);
                     switch(gameState){
                         case '1':
                             MySelf.drawVcV();
@@ -287,32 +297,35 @@ var HelloWorldLayer = cc.Layer.extend({
     },
 
     drawTimers:function(){
-        console.log("drawTimersdrawTimersdrawTimersdrawTimersdrawTimers");
+        //console.log("drawTimersdrawTimersdrawTimersdrawTimersdrawTimers");
+        console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+        console.log("drawArry.length:" + drawArry.length);
+        console.log(drawArry);
         drawNode.clear();
         for(var i=0;i<drawArry.length;i++)
         {
             for (var j=0;j<drawArry[i].grids.length;j++)
             {
-                if(drawArry[i].grids[j].times <= 10 && drawArry[i].grids[j].times>0)
+                if(drawArry[i].grids[j].times <= 2 && drawArry[i].grids[j].times>0)
                 {
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(186,17,38,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 20 && drawArry[i].grids[j].times>10){
+                }else if(drawArry[i].grids[j].times <= 4 && drawArry[i].grids[j].times>2){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(217,51,41,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 30 && drawArry[i].grids[j].times>20){
+                }else if(drawArry[i].grids[j].times <= 6 && drawArry[i].grids[j].times>4){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(247,115,70,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 40 && drawArry[i].grids[j].times>30){
+                }else if(drawArry[i].grids[j].times <= 8 && drawArry[i].grids[j].times>6){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(251,178,101,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 50 && drawArry[i].grids[j].times>40){
+                }else if(drawArry[i].grids[j].times <= 10 && drawArry[i].grids[j].times>8){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(255,228,149,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 60 && drawArry[i].grids[j].times>50){
+                }else if(drawArry[i].grids[j].times <= 12 && drawArry[i].grids[j].times>10){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(215,238,244,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 70 && drawArry[i].grids[j].times>60){
+                }else if(drawArry[i].grids[j].times <= 14 && drawArry[i].grids[j].times>12){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(162,210,230,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 80 && drawArry[i].grids[j].times>70){
+                }else if(drawArry[i].grids[j].times <= 16 && drawArry[i].grids[j].times>14){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(105,159,203,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 90 && drawArry[i].grids[j].times>80){
+                }else if(drawArry[i].grids[j].times <= 18 && drawArry[i].grids[j].times>16){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(66,105,174,255),1,cc.color(254,206,34,255));
-                }else if(drawArry[i].grids[j].times <= 100 && drawArry[i].grids[j].times>90){
+                }else if(drawArry[i].grids[j].times <= 20 && drawArry[i].grids[j].times>18){
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(53,57,145,255),1,cc.color(254,206,34,255));
                 }else {
 
@@ -332,7 +345,7 @@ var HelloWorldLayer = cc.Layer.extend({
         {
             console.log(pointsArray[i]);
             console.log(pointsArray[i+1]);
-            drawNode.drawSegment(cc.p(pointsArray[i].x*widthX,pointsArray[i].y*heightY),cc.p(pointsArray[i+1].x*widthX,pointsArray[i+1].y*heightY),1,cc.color(255,255,255,255));
+            drawNode.drawSegment(cc.p(pointsArray[i].x*widthX,pointsArray[i].y*heightY),cc.p(pointsArray[i+1].x*widthX,pointsArray[i+1].y*heightY),1,cc.color(0,0,0,255));
         }
     },
 
@@ -344,7 +357,7 @@ var HelloWorldLayer = cc.Layer.extend({
         {
             for (var j=0;j<drawArry[i].grids.length;j++)
             {
-                if(drawArry[i].grids[j].vcv <= 10 && drawArry[i].grids[j].vcv>0)
+                if(drawArry[i].grids[j].vcv <= 10 && drawArry[i].grids[j].vcv>=0)
                 {
                     drawNode.drawRect(cc.p(drawArry[i].grids[j].x*widthX, drawArry[i].grids[j].y*heightY),cc.p(drawArry[i].grids[j].x*widthX + widthX,drawArry[i].grids[j].y*heightY + heightY),cc.color(186,17,38,255),1,cc.color(254,206,34,255));
                 }else if(drawArry[i].grids[j].vcv <= 20 && drawArry[i].grids[j].vcv>10){
