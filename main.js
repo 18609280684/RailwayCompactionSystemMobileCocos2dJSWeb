@@ -50,7 +50,6 @@
 cc.game.onStart = function(){
     if(!cc.sys.isNative && document.getElementById("cocosLoading")) //If referenced loading.js, please remove it
         document.body.removeChild(document.getElementById("cocosLoading"));
-
     // Pass true to enable retina display, disabled by default to improve performance
     cc.view.enableRetina(false);
     // Adjust viewport meta
@@ -61,7 +60,17 @@ cc.game.onStart = function(){
     //cc.view.resizeWithBrowserSize(true);
     //load resources
     cc.LoaderScene.preload(g_resources, function () {
-        cc.director.runScene(new HelloWorldScene());
+        var ele = document.getElementById('gameCanvas');
+        if (ele.width == 600)
+        {
+            //alert("HelloWorldScene");
+            cc.director.runScene(new HelloWorldScene());
+        }else if (ele.width == 800)
+        {
+            //alert('DayDataScene');
+            cc.director.runScene(new DayDataScene());
+        }
+
     }, this);
 };
 cc.game.run();
