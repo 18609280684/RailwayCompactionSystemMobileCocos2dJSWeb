@@ -28,6 +28,7 @@ var pointsArray = new Array();
 var gameState = '1';
 var MySelf = '';
 var invoke = window.WebViewInvoke;
+var hostIp = "192.168.0.35";
 var HelloWorldLayer = cc.LayerColor.extend({
     sprite:null,
 
@@ -270,7 +271,7 @@ var HelloWorldLayer = cc.LayerColor.extend({
     //初始化数据
     initData:function(){
         ServiceApi.request("Cache.get", {
-            "key": "RailScene"
+            "key": "Scene:scene"
         }, function($seq, $result, $info, $value){
             if ($value.segmen != null)
             {
@@ -279,18 +280,18 @@ var HelloWorldLayer = cc.LayerColor.extend({
         },1000);
 
 
-        ServiceApi.request("Cache.get", {
-            "key": "gameState"
-        }, function($seq, $result, $info, $value) {
-            //console.log("$value:" + $value);
-            if (gameState != $value)
-            {
-                gameState = $value;
-            }
-        },500);
+        //ServiceApi.request("Cache.get", {
+        //    "key": "gameState"
+        //}, function($seq, $result, $info, $value) {
+        //    //console.log("$value:" + $value);
+        //    if (gameState != $value)
+        //    {
+        //        gameState = $value;
+        //    }
+        //},500);
 
         ServiceApi.request("Cache.get", {
-            "key": "grids"
+            "key": "Grid:grids"
         }, function($seq, $result, $info, $value) {
             console.log("new_gridsnew_gridsnew_gridsnew_grids");
             console.log($value);
@@ -317,13 +318,15 @@ var HelloWorldLayer = cc.LayerColor.extend({
                     for (var j = $value.center.y + NumberOfSquares* (1 + ScalingMultiplier); j > $value.center.y - NumberOfSquares* (1 + ScalingMultiplier);j--)
                     {
                         if(myarr[i][j] != null){
-                            drawArry.push(myarr[i][j]);
+                            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p(myarr[i][j].center.x * widthX, dataArry[i][1].center.y * heightY))))
+                            {
+                                drawArry.push(myarr[i][j]);
+                            }
                         }
                     }
                 }
 
                 MySelf.drawFunction();
-
             }
         }, 200);
     },
@@ -536,14 +539,16 @@ var startpos;
 var ScalingFactor = 1;
 var beginTouchOne,beginTouchTwo;
 var dataArry = new Array();
+var touchTwo = false;
 //当日数据页面
-var DayDataLayer = cc.LayerColor.extend({
-    sprite:null,
+var DayDataLayer;
+DayDataLayer = cc.LayerColor.extend({
+    sprite: null,
 
-    ctor:function () {
+    ctor: function () {
         //////////////////////////////
         // 1. super init first
-        this._super(cc.color(255, 255, 255, 255));
+        this._super(cc.color(0, 0, 0, 255));
         //alert('fffffffffffffffffffffff');
         //for (var i = 0; i < 100000; i++) {
         //    myarr[i] = new Array();
@@ -557,7 +562,7 @@ var DayDataLayer = cc.LayerColor.extend({
         var size = cc.winSize;
 
         //invoke.define('webGet',this.getWebData);
-        invoke.define('setScene',this.setScene);
+        invoke.define('setSceneState', this.setScenes);
 
         //cc.eventManager.addListener({
         //    event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -567,58 +572,33 @@ var DayDataLayer = cc.LayerColor.extend({
         //    onTouchEnded: this.onTouchEnded
         //}, this);
         MySelf = this;
-        if ('touches' in cc.sys.capabilities){
+        if ('touches' in cc.sys.capabilities) {
             cc.eventManager.addListener({
                 event: cc.EventListener.TOUCH_ALL_AT_ONCE,
-                onTouchesBegan:function(touches, event){
+                onTouchesBegan: function (touches, event) {
                     var touch = touches[0];
-                    beginTouchOne = touches[0];
-                    beginTouchTwo = touches[1];
-                    //alert("fffffffffffffffffff");
-                    //alert("touches.length:" + touches.length);
+
 
                 },
 
                 onTouchesMoved: function (touches, event) {
                     var touch = touches[0];
                     var delta = touch.getDelta();
-                    //alert("hhhhhhhhhhh");
-                    //alert("touches.length:" + touches.length);
-                    if(touches.length <= 1){
-                        var node = event.getCurrentTarget().getChildByTag(TAG_TILE_MAP);
-                        //移动
-                        node.x += delta.x;
-                        node.y += delta.y;
-                    }
+                    var node = event.getCurrentTarget().getChildByTag(TAG_TILE_MAP);
+                    //移动
+                    node.x += delta.x;
+                    node.y += delta.y;
+
                 },
 
-                onTouchesEnded:function(touches, event){
+                onTouchesEnded: function (touches, event) {
                     var touch = touches[0];
-                    alert("aaaaaaaaa");
-                    alert("touches.length:" + touches.length);
-
-                    if(touches.length > 1){
-                        var dis =  Math.sqrt(Math.pow(beginTouchOne.x - beginTouchTwo.x,2) + Math.pow(beginTouchOne.y - beginTouchTwo.y,2)) -
-                            Math.sqrt(Math.pow(touches[0].x - touches[1].x,2) + Math.pow(touches[0].y - touches[1].y,2));
-                        alert("bbbbbbbbbbbbbb");
-                        if(dis > 0)
-                        {
-                            alert("cccccccccc");
-                            ScalingFactor = 0.5;
-                            console.log("缩小");
-                            drawNode.runAction(cc.scaleBy(0.1,ScalingFactor));
-                        }else {
-                            alert("nnnnnnnnnnnnnn");
-                            ScalingFactor = 1.5;
-                            console.log("放大");
-                            drawNode.runAction(cc.scaleBy(0.1,ScalingFactor));
-                        }
-
-                    }
+                    //alert("aaaaaaaaa");
+                    //alert("touches.length:" + touches.length);
                     MySelf.drawFunction();
                 },
 
-                ouTouchesCancelled:function(touches, event){
+                ouTouchesCancelled: function (touches, event) {
                     var touch = touches[0];
                     alert("cccccccccccccc");
                 }
@@ -627,7 +607,7 @@ var DayDataLayer = cc.LayerColor.extend({
             cc.eventManager.addListener({
                 event: cc.EventListener.MOUSE,
 
-                onMouseDown: function(event){
+                onMouseDown: function (event) {
                     var pos = event.getLocation();
                     //cc.log("Downpos:" + pos.x + ":" + pos.y);
                     //console.log("cc.view.getFrameSize().width:" + cc.view.getFrameSize().width);
@@ -635,36 +615,25 @@ var DayDataLayer = cc.LayerColor.extend({
 
                 },
 
-                onMouseMove: function(event){
-                    if(event.getButton() == cc.EventMouse.BUTTON_LEFT){
+                onMouseMove: function (event) {
+                    if (event.getButton() == cc.EventMouse.BUTTON_LEFT) {
                         var node = event.getCurrentTarget().getChildByTag(TAG_TILE_MAP);
-                        pos = event.getLocation();
-                        //node.x += event.getDeltaX();
-                        //node.y += event.getDeltaY();
-                        //drawNode.setAnchorPoint(drawNode.convertToWorldSpace(cc.p(800/2,600/2)));
+                        //pos = event.getLocation();
+                        node.x += event.getDeltaX();
+                        node.y += event.getDeltaY();
+
                     }
                 },
 
-                onMouseUp:function(event){
+                onMouseUp: function (event) {
                     var pos = event.getLocation();
                     //cc.log("Uppos:" + pos.x + ":" + pos.y);
-
-                    if(startpos.y - pos.y >= 0)
-                    {
-                        ScalingFactor = 0.5;
-                        console.log("缩小");
-                        drawNode.runAction(cc.scaleBy(0.1,ScalingFactor));
-                    }else {
-                        ScalingFactor = 1.5;
-                        console.log("放大");
-                        drawNode.runAction(cc.scaleBy(0.1,ScalingFactor));
-                    }
                     MySelf.drawFunction();
                 }
             }, this);
 
         drawNode = new cc.DrawNode();
-        this.addChild(drawNode,0,TAG_TILE_MAP);
+        this.addChild(drawNode, 0, TAG_TILE_MAP);
         //drawNode.ignoreAnchorPointForPosition(false);
         //drawNode.setAnchorPoint(cc.p(0.5,0.5));
         //drawNode.runAction(cc.rotateBy(50,180));
@@ -682,30 +651,42 @@ var DayDataLayer = cc.LayerColor.extend({
         return true;
     },
 
+    //点击放大按钮事件
+    touchEnlargeButton: function () {
+        ScalingFactor = ScalingFactor + 0.1;
+        console.log("放大");
+        drawNode.runAction(cc.scaleTo(0.3, ScalingFactor));
+    },
+    //点击缩小按钮事件
+    TouchNarrowButton: function () {
+        ScalingFactor = ScalingFactor - 0.1;
+        console.log("缩小");
+        drawNode.runAction(cc.scaleTo(0.3, ScalingFactor));
+    },
     //初始化里程和偏移
-    initMileageAndMigration:function(){
+    initMileageAndMigration: function () {
         //里程
         var label = new cc.LabelTTF(
-            BasicMileage + Math.ceil(this.height/heightY*0.3/5*2),
+            BasicMileage + Math.ceil(this.height / heightY * 0.3 / 5 * 2),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label.setPosition(50,this.height - 20);
-        label.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label,1,10);
+        label.setPosition(50, this.height - 20);
+        label.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label, 1, 10);
 
         var label1 = new cc.LabelTTF(
-            BasicMileage + Math.ceil(this.height/heightY*0.3/5),
+            BasicMileage + Math.ceil(this.height / heightY * 0.3 / 5),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label1.setPosition(50,this.height/2 + (this.height - 20 - this.height/2)/2);
-        label1.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label1,1,11);
+        label1.setPosition(50, this.height / 2 + (this.height - 20 - this.height / 2) / 2);
+        label1.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label1, 1, 11);
 
         var label2 = new cc.LabelTTF(
             BasicMileage,
@@ -714,54 +695,54 @@ var DayDataLayer = cc.LayerColor.extend({
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label2.setPosition(50,this.height/2);
-        label2.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label2,1,12);
+        label2.setPosition(50, this.height / 2);
+        label2.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label2, 1, 12);
 
         var label3 = new cc.LabelTTF(
-            BasicMileage - Math.ceil(this.height/heightY*0.3/5),
+            BasicMileage - Math.ceil(this.height / heightY * 0.3 / 5),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label3.setPosition(50,(this.height/2-20)/2 + 20);
-        label3.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label3,1,13);
+        label3.setPosition(50, (this.height / 2 - 20) / 2 + 20);
+        label3.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label3, 1, 13);
 
         var label4 = new cc.LabelTTF(
-            "DK" +  BasicMileage + '+' + Math.ceil(BasicMileage - this.height/heightY*0.3/5 * 2),
+            "DK" + BasicMileage + '+' + Math.ceil(BasicMileage - this.height / heightY * 0.3 / 5 * 2),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label4.setPosition(50,20);
-        label4.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label4,1,14);
+        label4.setPosition(50, 20);
+        label4.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label4, 1, 14);
 
         //偏移
         var label20 = new cc.LabelTTF(
-            BasicMileage + Math.ceil(this.height/heightY*0.3/5*2),
+            BasicMileage + Math.ceil(this.height / heightY * 0.3 / 5 * 2),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label20.setPosition(50,50);
-        label20.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label20,1,20);
+        label20.setPosition(50, 50);
+        label20.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label20, 1, 20);
 
         var label21 = new cc.LabelTTF(
-            BasicMileage + Math.ceil(this.height/heightY*0.3/5),
+            BasicMileage + Math.ceil(this.height / heightY * 0.3 / 5),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label21.setPosition(50 + (this.width - 100)/5,50);
-        label21.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label21,1,21);
+        label21.setPosition(50 + (this.width - 100) / 5, 50);
+        label21.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label21, 1, 21);
 
         var label22 = new cc.LabelTTF(
             BasicMileage,
@@ -770,65 +751,89 @@ var DayDataLayer = cc.LayerColor.extend({
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label22.setPosition(this.width/2,50);
-        label22.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label22,1,22);
+        label22.setPosition(this.width / 2, 50);
+        label22.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label22, 1, 22);
 
         var label23 = new cc.LabelTTF(
-            BasicMileage - Math.ceil(this.height/heightY*0.3/5),
+            BasicMileage - Math.ceil(this.height / heightY * 0.3 / 5),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label23.setPosition(this.width - 50 - (this.width - 100)/5,50);
-        label23.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label23,1,23);
+        label23.setPosition(this.width - 50 - (this.width - 100) / 5, 50);
+        label23.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label23, 1, 23);
 
         var label24 = new cc.LabelTTF(
-            Math.ceil(BasicMileage - this.height/heightY*0.3/5 * 2),
+            Math.ceil(BasicMileage - this.height / heightY * 0.3 / 5 * 2),
             "Microsoft YaHei",
             16,
             cc.size(200, 200),
             cc.TEXT_ALIGNMENT_CENTER,
             cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        label24.setPosition(this.width - 50,50);
-        label24.setFontFillColor(cc.color(0,0,0,255));
-        this.addChild(label24,1,24);
+        label24.setPosition(this.width - 50, 50);
+        label24.setFontFillColor(cc.color(0, 0, 0, 255));
+        this.addChild(label24, 1, 24);
+
+        cc.MenuItemFont.setFontName("Times New Roman");
+        cc.MenuItemFont.setFontSize(86);
+        var enlarge = new cc.MenuItemFont("+", this.touchEnlargeButton, this);
+        var narrow = new cc.MenuItemFont("-", this.TouchNarrowButton, this);
+
+        var menu = new cc.Menu(enlarge, narrow);
+        menu.alignItemsVertically();
+
+        menu.setPosition(cc.p(this.width - 100, this.height / 2));
+        this.addChild(menu, 1);
+        //menu.setScale(1.5);
     },
 
     //初始化各种数据
     initData: function () {
         console.log("bbbbbbbbbbbbbbbbbbbbbb");
-        ServiceApi.request("DayData.get", {
-            "key": "grids"
-        }, function($seq, $result, $info, $value) {
+        ServiceApi.request("DayData.getlist", {
+            //"key": "grids"
+
+        }, function ($seq, $result, $info, $value) {
             console.log($value);
             console.log("new_gridsnew_gridsnew_gridsnew_grids");
-            dataArry = $value;
-            console.log(dataArry[0]);
-            MySelf.drawFunction();
+            //console.log("$value.length:" + $value.length);
+            for (var i in $value) {
+                console.log("$value[i]" + $value[i]);
+                ServiceApi.request("DayData.getdata", {"id": $value[i]}, function ($se, $res, $inf, $dat) {
+                    for (var j in $dat) {
+                        dataArry.push($dat[j]);
+                    }
+                    MySelf.drawFunction();
+                }, 0);
+
+            }
+            //dataArry = $value;
+            //console.log(dataArry[0]);
+            //MySelf.drawFunction();
         });
     },
 
     drawYashichengdu: function () {
-        alert("drawYashichengdu");
-        for(var i=0;i<dataArry.length;i++){
-            if( cc.rectContainsPoint(cc.rect(0,0,cc.view.getFrameSize().width,cc.view.getFrameSize().height),drawNode.convertToWorldSpace(cc.p(dataArry[i][0]*widthX * ScalingFactor + widthX * ScalingFactor/2,dataArry[i][1]*heightY * ScalingFactor + heightY * ScalingFactor/2)))) {
+        //alert("drawYashichengdu");
+        for (var i = 0; i < dataArry.length; i++) {
+            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p((dataArry[i][0] * widthX) * ScalingFactor + (widthX * ScalingFactor) / 2, (dataArry[i][1] * heightY) * ScalingFactor + (heightY * ScalingFactor) / 2)))) {
                 if (dataArry[i][5]) {
                     //console.log("dataArry[i].x:" + dataArry[i][0]);
-                    drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(186, 17, 38, 255), 0, cc.color(254, 206, 34, 255));
+                    drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(186, 17, 38, 255), 1, cc.color(254, 206, 34, 255));
                 } else {
                     //console.log("dataArry[i].y:" + dataArry[i][1]);
-                    drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(255, 228, 149, 255), 0, cc.color(254, 206, 34, 255));
+                    drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(255, 228, 149, 255), 1, cc.color(254, 206, 34, 255));
                 }
             }
         }
     },
     drawYashizhuangtai: function () {
         alert("drawYashizhuangtai");
-        for(var i=0;i<dataArry.length;i++){
-            if( cc.rectContainsPoint(cc.rect(0,0,cc.view.getFrameSize().width,cc.view.getFrameSize().height),drawNode.convertToWorldSpace(cc.p(dataArry[i][0]*widthX * ScalingFactor + widthX * ScalingFactor/2,dataArry[i][1]*heightY * ScalingFactor + heightY * ScalingFactor/2)))) {
+        for (var i = 0; i < dataArry.length; i++) {
+            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p((dataArry[i][0] * widthX) * ScalingFactor + (widthX * ScalingFactor) / 2, (dataArry[i][1] * heightY) * ScalingFactor + (heightY * ScalingFactor) / 2)))) {
                 if (dataArry[i][3]) {
                     //console.log("dataArry[i].x:" + dataArry[i][0]);
                     drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(186, 17, 38, 255), 0, cc.color(254, 206, 34, 255));
@@ -841,8 +846,8 @@ var DayDataLayer = cc.LayerColor.extend({
     },
     drawJunyundu: function () {
         alert("drawJunyundu");
-        for(var i=0;i<dataArry.length;i++){
-            if( cc.rectContainsPoint(cc.rect(0,0,cc.view.getFrameSize().width,cc.view.getFrameSize().height),drawNode.convertToWorldSpace(cc.p(dataArry[i][0]*widthX * ScalingFactor + widthX * ScalingFactor/2,dataArry[i][1]*heightY * ScalingFactor + heightY * ScalingFactor/2)))) {
+        for (var i = 0; i < dataArry.length; i++) {
+            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p((dataArry[i][0] * widthX) * ScalingFactor + (widthX * ScalingFactor) / 2, (dataArry[i][1] * heightY) * ScalingFactor + (heightY * ScalingFactor) / 2)))) {
                 if (dataArry[i][4]) {
                     //console.log("dataArry[i].x:" + dataArry[i][0]);
                     drawNode.drawRect(cc.p(dataArry[i][0] * widthX, dataArry[i][1] * heightY), cc.p(dataArry[i][0] * widthX + widthX, dataArry[i][1] * heightY + heightY), cc.color(186, 17, 38, 255), 0, cc.color(254, 206, 34, 255));
@@ -857,17 +862,16 @@ var DayDataLayer = cc.LayerColor.extend({
         alert("没有次参数" + gameState);
     },
     //初始化绘图
-    drawFunction:function(){
-        if(dataArry == null)
-        {
+    drawFunction: function () {
+        console.log("ScalingFactor:" + ScalingFactor);
+        if (dataArry == null) {
             return;
         }
 
         drawNode.clear();
         //widthX = widthX * ScalingFactor;
         //heightY = heightY * ScalingFactor;
-
-        switch (gameState){
+        switch (gameState) {
             case '1':
                 this.drawYashichengdu();
                 break;
@@ -884,7 +888,7 @@ var DayDataLayer = cc.LayerColor.extend({
 
     },
 
-    onTouchBegan:function (touch, event) {
+    onTouchBegan: function (touch, event) {
         //     var target = event.getCurrentTarget();
         var pos = touch.getLocation();
 //        cc.log("isv:" + target.gameoverlayer.isVisible());
@@ -892,22 +896,23 @@ var DayDataLayer = cc.LayerColor.extend({
         cc.log("begin:" + pos.x + ":" + pos.y);
         return true;
     },
-    onTouchMoved : function (touch,event) {
+    onTouchMoved: function (touch, event) {
         var pos = touch.getLocation();
 //        var target = event.getCurrentTarget();
 
         cc.log("move:" + pos.x + ":" + pos.y);
     },
-    onTouchEnded : function(touch,event){
+    onTouchEnded: function (touch, event) {
         var pos = touch.getLocation();
 
         cc.log("end:" + pos.x + ":" + pos.y);
     },
 
     //设置当前所在页面
-    setScene:function(data){
+    setScenes: function (data) {
+        alert("data" + data);
         gameState = data;
-        this.drawFunction();
+        MySelf.drawFunction();
         return gameState;
     }
 });
