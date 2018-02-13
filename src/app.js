@@ -307,7 +307,7 @@ var HelloWorldLayer = cc.LayerColor.extend({
                 }
                 //按照顺序存储中心点做为行驶轨迹数据
                     pointsArray.push($value.center);
-                //console.log("pppppppppppppppppp");
+                console.log("pppppppppppppppppp");
                 //console.log($value.center)
                 //console.log("pointsArray.length:" + pointsArray.length);
 
@@ -938,7 +938,7 @@ var ServiceApi = {
         if (ServiceApi.socket != null) return;
         var host = "192.168.0.35";
         // window.location.host;
-        ServiceApi.socket = new WebSocket("ws://" + host + ":1224");
+        ServiceApi.socket = new WebSocket("ws://" + host + ":1228");
         ServiceApi.socket.onopen = function() {
             console.log("socket connected");
             ServiceApi.socketState = 1;

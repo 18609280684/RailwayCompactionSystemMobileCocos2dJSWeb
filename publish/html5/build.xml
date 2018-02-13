@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<project name="Javascript compress project" basedir="E:\apache-tomcat-7.0.53\webapps\RailwayCompactionSystemMobileCocos2dJSWeb" default="compile">
+<project name="Javascript compress project" basedir="D:\apache-tomcat-8.5.24\webapps\RailwayCompactionSystemMobileCocos2dJSWeb" default="compile">
 
     <taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask"
-             classpath="E:\apache-tomcat-7.0.53\webapps\cocos2d-js-v3.6\tools\cocos2d-console\plugins\project_compile\build_web/bin/compiler-1.7.jar"/>
+             classpath="D:\cocos2d-js-v3.6\tools\cocos2d-console\plugins\project_compile\build_web/bin/compiler-1.7.jar"/>
 
     <target name="compile">
         <jscomp compilationLevel="simple" 
                 warning="quiet"
                 debug="false" 
-                output="E:\apache-tomcat-7.0.53\webapps\RailwayCompactionSystemMobileCocos2dJSWeb\publish\html5/game.min.js"
+                output="D:\apache-tomcat-8.5.24\webapps\RailwayCompactionSystemMobileCocos2dJSWeb\publish\html5/game.min.js"
                 languagein="ECMASCRIPT5"
                 
                 >
-            <sources dir="E:\apache-tomcat-7.0.53\webapps\RailwayCompactionSystemMobileCocos2dJSWeb\frameworks\cocos2d-html5">
+            <sources dir="D:\apache-tomcat-8.5.24\webapps\RailwayCompactionSystemMobileCocos2dJSWeb\frameworks\cocos2d-html5">
                 <file name="CCBoot.js"/>
                 <file name="CCDebugger.js"/>
                 <file name="cocos2d/core/utils/BinaryLoader.js"/>
