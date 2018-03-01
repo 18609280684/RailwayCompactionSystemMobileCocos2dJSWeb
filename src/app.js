@@ -302,6 +302,12 @@ var HelloWorldLayer = cc.LayerColor.extend({
                 }
                 //按照顺序存储中心点做为行驶轨迹数据
                     pointsArray.push($value.center);
+<<<<<<< HEAD
+=======
+                console.log("pppppppppppppppppp");
+                //console.log($value.center)
+                //console.log("pointsArray.length:" + pointsArray.length);
+>>>>>>> fdb86310efcd017a4d90750cd062d2727d122d64
 
                 //清空绘制数组并计算在中线点附近的点重新存入
                 drawArry.splice(0,drawArry.length);
@@ -922,7 +928,11 @@ var ServiceApi = {
         if (ServiceApi.socket != null) return;
         //var host = "192.168.0.35";
         // window.location.host;
+<<<<<<< HEAD
         ServiceApi.socket = new WebSocket("ws://" + hostIp + port);
+=======
+        ServiceApi.socket = new WebSocket("ws://" + host + ":1228");
+>>>>>>> fdb86310efcd017a4d90750cd062d2727d122d64
         ServiceApi.socket.onopen = function() {
             console.log("socket connected");
             ServiceApi.socketState = 1;
