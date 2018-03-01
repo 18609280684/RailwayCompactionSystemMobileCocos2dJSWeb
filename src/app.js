@@ -11,7 +11,7 @@ var  heightY = 10;
 //当前屏幕绘制矩形的数量
 var NumberOfSquares = 50;
 //地图缩放倍数
-var ScalingMultiplier = 0;
+var ScalingMultiplier = 10;
 //当前路基星系
 var BasicMileage = 10;
 
@@ -29,6 +29,10 @@ var gameState = '1';
 var MySelf = '';
 var invoke = window.WebViewInvoke;
 var hostIp = "192.168.0.35";
+var port = ":1228";
+var Token = "";
+
+
 var HelloWorldLayer = cc.LayerColor.extend({
     sprite:null,
 
@@ -37,7 +41,7 @@ var HelloWorldLayer = cc.LayerColor.extend({
         // 1. super init first
         this._super(cc.color(255, 255, 255, 255));
 
-        for (var i = 0; i < 100000; i++) {
+        for (var i = 0; i < 1000000; i++) {
             myarr[i] = new Array();
             // 此时二维内部的数组已经生成了
         }
@@ -50,6 +54,7 @@ var HelloWorldLayer = cc.LayerColor.extend({
 
         invoke.define('webGet',this.getWebData);
         invoke.define('webSet',this.setWebData);
+        invoke.define('getToken',this.getToken);
 
         //cc.eventManager.addListener({
         //    event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -66,17 +71,13 @@ var HelloWorldLayer = cc.LayerColor.extend({
                     onTouchBegan: function(touches,event){
                         var target = event.getCurrentTarget();
                         var delta = touch.getLocation();
-                        alert("jjjjjjjjjjjjjj");
                         //return true;
                 },
 
                     onTouchesMoved: function (touches, event) {
                         var touch = touches[0];
                         var delta = touch.getDelta();
-
-
                         //alert(touches.length);
-
                         var node = event.getCurrentTarget().getChildByTag(TAG_TILE_MAP);
                         node.x += delta.x;
                         node.y += delta.y;
@@ -87,10 +88,8 @@ var HelloWorldLayer = cc.LayerColor.extend({
                             //this.setAnchorPoint(rollerCar.x,rollerCar.y);
                             rollerCar.runAction(cc.scaleBy(0.1,1 +  Math.sqrt(delta.x*delta.x + delta.y*delta.y)/10));
                         }
-
                 },
                     onTouchEnded:function(touch,event){
-
                     return true;
                 }
             }, this);
@@ -116,38 +115,9 @@ var HelloWorldLayer = cc.LayerColor.extend({
         rollerCar.setScale(0.1,0.1);
         this.addChild(rollerCar,1);
 
-
         this.initMileageAndMigration();
-        //drawNode.drawRect(cc.p(10*widthX, 10*heightY),cc.p(10*widthX + widthX,10*heightY + heightY),cc.color(50,205,50,255),1,cc.color(254,206,34,255));
-        //drawNode.drawRect(cc.p(0, 0),cc.p(10 + widthX,10 + heightY),cc.color(50,205,50,255),1,cc.color(254,206,34,255));
-        //drawNode.drawRect(cc.p(500, 500),cc.p(500 + widthX,500 + heightY),cc.color(50,205,50,255),1,cc.color(254,206,34,255));
 
-        //console.log(rollerCar.getPosition());
-        //console.log("bbbbbbbbbbbbbbbbb");
-        //xrr = drawNode.convertToWorldSpace(drawNode.getPosition());
-        //drawNode.runAction(cc.moveTo(0.5,cc.p(152,152)));
-        //console.log(xrr);
-        //ServiceApi.request("Cache.set", {
-        //    "key": "gameState",
-        //    "val":"2"
-        //}, function($seq, $result, $info, $value) {
-        //
-        //},0);
-
-        this.initData();
-
-        //this.runAction(cc.scaleTo(5,0.1));
-        //this.removeChild(rollerCar);
-        //drawNode.addChild(rollerCar,1);
-        //drawNode.setAnchorPoint(0.1,0.1);
-        //drawNode.runAction(cc.scaleBy(5,0.5));
-
-        //console.log(rollerCar.getPosition());
-        //console.log("drawNode");
-        //console.log(rollerCar.convertToWorldSpace(rollerCar.getPosition()));
-        //console.log("11111111111");
-        //console.log(drawNode.convertToWorldSpace(rollerCar.getPosition()));
-
+        //this.initData();
 
 
         return true;
@@ -266,33 +236,58 @@ var HelloWorldLayer = cc.LayerColor.extend({
         label24.setPosition(this.width - 50,50);
         label24.setFontFillColor(cc.color(255,0,0,255));
         this.addChild(label24,1,24);
+
+        var textField1 = new ccui.TextField("hostIp","Marker Felt",30);
+        textField1.setTextColor(cc.color(0,0,0,255));
+        textField1.x = 100;
+        textField1.y = this.height - 100;
+        this.addChild(textField1,2);
+
+        var textField2 = new ccui.TextField(":port","Marker Felt",30);
+        textField2.setTextColor(cc.color(0,0,0,255));
+        textField2.x = 100;
+        textField2.y = this.height - 150;
+        this.addChild(textField2,2);
+
+        var textField3 = new ccui.TextField(":Token","Marker Felt",30);
+        textField3.setTextColor(cc.color(0,0,0,255));
+        textField3.x = 100;
+        textField3.y = this.height - 200;
+        this.addChild(textField3,2);
+
+        var button = new ccui.Button();
+        button.setTouchEnabled(true);
+        button.setTitleText("OK");
+        button.x = 100;
+        button.y = this.height - 250;
+        button.addClickEventListener(function(){
+            hostIp = textField1.getString();
+            port = textField2.getString();
+            Token = textField3.getString();
+            //ServiceApi.socket.close();
+            MySelf.initData();
+        });
+        this.addChild(button,2);
     },
 
     //初始化数据
     initData:function(){
-        ServiceApi.request("Cache.get", {
-            "key": "Scene:scene"
-        }, function($seq, $result, $info, $value){
-            if ($value.segmen != null)
-            {
-                BasicMileage = $value.segment;
-            }
-        },1000);
-
-
         //ServiceApi.request("Cache.get", {
-        //    "key": "gameState"
-        //}, function($seq, $result, $info, $value) {
-        //    //console.log("$value:" + $value);
-        //    if (gameState != $value)
+        //    "key": "Scene:scene"
+        //}, function($seq, $result, $info, $value){
+        //    if ($value.segmen != null)
         //    {
-        //        gameState = $value;
+        //        BasicMileage = $value.segment;
         //    }
-        //},500);
+        //},1000);
 
         ServiceApi.request("Cache.get", {
-            "key": "Grid:grids"
+            "key": "Grid:grids",
+            "token":Token,
+            //"key": "Scene:Road"
+
         }, function($seq, $result, $info, $value) {
+            console.log(Token);
             console.log("new_gridsnew_gridsnew_gridsnew_grids");
             console.log($value);
 
@@ -307,9 +302,6 @@ var HelloWorldLayer = cc.LayerColor.extend({
                 }
                 //按照顺序存储中心点做为行驶轨迹数据
                     pointsArray.push($value.center);
-                //console.log("pppppppppppppppppp");
-                //console.log($value.center)
-                //console.log("pointsArray.length:" + pointsArray.length);
 
                 //清空绘制数组并计算在中线点附近的点重新存入
                 drawArry.splice(0,drawArry.length);
@@ -318,20 +310,19 @@ var HelloWorldLayer = cc.LayerColor.extend({
                     for (var j = $value.center.y + NumberOfSquares* (1 + ScalingMultiplier); j > $value.center.y - NumberOfSquares* (1 + ScalingMultiplier);j--)
                     {
                         if(myarr[i][j] != null){
-                            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p(myarr[i][j].center.x * widthX, dataArry[i][1].center.y * heightY))))
+                            if (cc.rectContainsPoint(cc.rect(0, 0, cc.view.getFrameSize().width, cc.view.getFrameSize().height), drawNode.convertToWorldSpace(cc.p(myarr[i][j].center.x * widthX, myarr[i][j].center.y * heightY))))
                             {
                                 drawArry.push(myarr[i][j]);
                             }
                         }
                     }
                 }
-
-                MySelf.drawFunction();
+                MySelf.drawFunction($value);
             }
         }, 200);
     },
 
-    drawFunction:function(){
+    drawFunction:function($value){
         //根据角度旋转小车角度
         rollerCar.runAction(cc.rotateTo(0.5,$value.info.car_drct));
         //根据center移动地图
@@ -364,7 +355,7 @@ var HelloWorldLayer = cc.LayerColor.extend({
                 break;
         }
     },
-
+    //绘制压实遍数
     drawTimers:function(){
         //console.log("drawTimersdrawTimersdrawTimersdrawTimersdrawTimers");
         console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
@@ -454,26 +445,9 @@ var HelloWorldLayer = cc.LayerColor.extend({
         }
     },
 
-    //conversionCoordinateX:function(Xposition,Ypsoition,angle){
-    //    return Xposition * Math.cos(angle) + Ypsoition *Math.sin(angle);
-    //},
-    //
-    //conversionCoordinateY:function(Xposition,Ypsoition,angle){
-    //    return Ypsoition * Math.cos(angle) - Xposition * Math.sin(angle);
-    //},
-    //
-    //flipXAxis180:function(Xposition){
-    //    return Xposition * -1;
-    //},
-    //
-    //flipYAxis180:function(Ypsoition){
-    //    return Ypsoition * -1;
-    //},
-
     onTouchBegan:function (touch, event) {
    //     var target = event.getCurrentTarget();
         var pos = touch.getLocation();
-//        cc.log("isv:" + target.gameoverlayer.isVisible());
 
         alert("begin:" + pos.x + ":" + pos.y);
         return true;
@@ -524,8 +498,16 @@ var HelloWorldLayer = cc.LayerColor.extend({
         gameState = data;
         MySelf.drawFunction();
         return gameState;
+    },
+
+    //获得TOKEN
+    getToken: function(data) {
+        Token = data;
+        MySelf.initData();
+        alert(Token);
     }
 });
+
 
 var HelloWorldScene = cc.Scene.extend({
     onEnter:function () {
@@ -795,8 +777,10 @@ DayDataLayer = cc.LayerColor.extend({
         console.log("bbbbbbbbbbbbbbbbbbbbbb");
         ServiceApi.request("DayData.getlist", {
             //"key": "grids"
+            "token":Token,
 
         }, function ($seq, $result, $info, $value) {
+
             console.log($value);
             console.log("new_gridsnew_gridsnew_gridsnew_grids");
             //console.log("$value.length:" + $value.length);
@@ -936,9 +920,9 @@ var ServiceApi = {
 
     socketInit: function() {
         if (ServiceApi.socket != null) return;
-        var host = "192.168.0.35";
+        //var host = "192.168.0.35";
         // window.location.host;
-        ServiceApi.socket = new WebSocket("ws://" + host + ":1224");
+        ServiceApi.socket = new WebSocket("ws://" + hostIp + port);
         ServiceApi.socket.onopen = function() {
             console.log("socket connected");
             ServiceApi.socketState = 1;
